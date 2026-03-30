@@ -1,0 +1,61 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Пользователь", "Оператор / Аналитик")
+
+System_Boundary(system, "Будущее 2.0") {
+
+    Container(ui_operator, "Operator UI", "Web/Mobile", "Интерфейс для операторов")
+    Container(data_portal, "Data Portal", "BI / Web", "Self-service витрина данных")
+
+    Container(api_gateway, "API Gateway", "Gateway", "Единая точка входа")
+
+    Container(event_bus, "Event Streaming", "Kafka", "Асинхронная передача данных")
+
+    ContainerDb(data_lake, "Data Lake / Lakehouse", "S3 + Delta/Iceberg", "Хранилище аналитических данных")
+    Container(data_processing, "Data Processing", "Spark/Flink", "Обработка данных")
+    Container(data_catalog, "Data Catalog", "Metadata", "Каталог и управление доступом")
+
+    Container(bi, "BI System", "Power BI", "Отчётность и визуализация")
+
+    System_Boundary(medical, "Medical Domain") {
+        Container(med_services, "Medical Services", "Java/Kotlin", "Медицинская логика")
+        ContainerDb(med_db, "Medical DB", "OLTP", "Медицинские данные")
+        ContainerDb(med_secure, "Secure Storage", "Encrypted", "Чувствительные данные")
+    }
+
+    System_Boundary(fintech, "Fintech Domain") {
+        Container(fin_services, "Fintech Services", "Java/Golang", "Финансовая логика")
+        ContainerDb(fin_db, "Fintech DB", "OLTP", "Финансовые данные")
+    }
+
+    System_Boundary(ai, "AI Domain") {
+        Container(ai_services, "AI Services", "Python", "ML/AI модели")
+        Container(ai_storage, "Feature Store", "Storage", "Данные для моделей")
+    }
+}
+
+Rel(user, ui_operator, "Использует")
+Rel(user, data_portal, "Строит отчёты")
+
+Rel(ui_operator, api_gateway, "API")
+Rel(api_gateway, med_services, "REST")
+Rel(api_gateway, fin_services, "REST")
+
+Rel(med_services, med_db, "Чтение/запись")
+Rel(fin_services, fin_db, "Чтение/запись")
+
+Rel(med_services, event_bus, "Публикация событий")
+Rel(fin_services, event_bus, "Публикация событий")
+
+Rel(event_bus, data_lake, "Streaming ingestion")
+Rel(data_lake, data_processing, "Обработка")
+Rel(data_processing, data_lake, "Обогащённые данные")
+
+Rel(data_lake, bi, "Данные для отчётов")
+Rel(bi, data_portal, "Визуализация")
+
+Rel(ai_services, med_secure, "Доступ к чувствительным данным")
+Rel(ai_services, event_bus, "Публикация результатов")
+
+@enduml

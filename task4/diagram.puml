@@ -1,0 +1,38 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Terraform Managed" {
+
+  [VPC Network]
+  [Subnets]
+
+  [Kubernetes Cluster]
+  [Node Group]
+
+  [VM Bastion]
+
+  [Load Balancer]
+
+  [Object Storage (Data Lake)]
+
+  [Managed DB (PostgreSQL)]
+
+}
+
+package "Manual / External" {
+
+  [Kafka (Managed Service)]
+  [Monitoring (Grafana/Prometheus)]
+  [CI/CD (GitLab)]
+
+}
+
+[Kubernetes Cluster] --> [Node Group]
+[Kubernetes Cluster] --> [Load Balancer]
+
+[VM Bastion] --> [Kubernetes Cluster]
+
+[Node Group] --> [Object Storage (Data Lake)]
+[Node Group] --> [Managed DB (PostgreSQL)]
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Medical Domain" {
+  [Medical Services]
+  [Medical DB]
+}
+
+package "Fintech Domain" {
+  [Fintech Services]
+  [Fintech DB]
+}
+
+package "AI Domain" {
+  [AI Services]
+}
+
+package "Data Platform" {
+  [Data Lake]
+  [Data Processing]
+  [Data Portal]
+}
+
+package "Integration Layer" {
+  [Event Bus (Kafka)]
+  [API Gateway]
+}
+
+package "External Partners" {
+  [Pharma]
+  [Devices]
+}
+
+' Потоки данных
+
+[Medical Services] --> [Event Bus (Kafka)] : медицинские события
+[Fintech Services] --> [Event Bus (Kafka)] : финансовые события
+
+[Event Bus (Kafka)] --> [Data Lake] : ingestion
+
+[Data Lake] --> [Data Processing] : обработка
+[Data Processing] --> [Data Lake] : агрегаты
+
+[Data Lake] --> [Data Portal] : данные для отчетов
+
+[Medical Services] --> [AI Services] : медицинские данные
+[AI Services] --> [Event Bus (Kafka)] : результаты анализа
+
+[API Gateway] --> [Medical Services]
+[API Gateway] --> [Fintech Services]
+
+[Pharma] --> [API Gateway] : API
+[Devices] --> [API Gateway] : API
+
+[Pharma] --> [Event Bus (Kafka)] : события
+[Devices] --> [Event Bus (Kafka)] : события
+
+@enduml
